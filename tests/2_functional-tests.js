@@ -13,13 +13,27 @@ suite('Functional Tests', function() {
             .send({ board: "123", text:"content", delete_password:"secret" })
             .end(function (err, res) {
                 assert.equal(res.status, 200);
-                // assert.equal(res.body.stockData.stock, "GOOG");
+                assert.equal(res.body.board, "123");
+                assert.equal(res.body.text, "content");
+                assert.equal(res.body.delete_password, "secret");
+                assert.exists(res.body._id);
                 done();
             });
     });
 
     test("Viewing the 10 most recent threads with 3 replies each: GET request to /api/threads/{board}", function (done) {
-        done();
+        chai.request(server)
+            .get("/api/threads/123")
+            .send({ board: "123", limit: 10, orderBy:'recentFirst', repliesCount: 3 })
+            .end(function (err, res) {
+                assert.equal(res.status, 200);
+                assert.isAtLeast(res.body.length, 1);
+                assert.isAtMost(res.body.length, 10);
+                res.body.forEach(thread => {
+                   assert.isAtLeast(thread.replies.length, 3);
+                });
+                done();
+            });
     });
 
     test("Deleting a thread with the incorrect password: DELETE request to /api/threads/{board} with an invalid delete_password", function (done) {

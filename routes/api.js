@@ -1,40 +1,37 @@
 'use strict';
 
-const mongoose = require('mongoose');
-const uri = process.env.MONGO_URI;
-const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
+const doConnection = require("../model/connection.js");
+const Thread = require("../model/thread.js");
+const Reply = require("../model/reply.js");
 
-mongoose.connect(uri,clientOptions);
-
-const { Schema } = mongoose;
-
-const threadSchema = new Schema({
-  board: { type: String, required: true }, 
-  text: String,
-  delete_password: String
-});
-
-let Thread = mongoose.model('Thread', threadSchema);
+doConnection();
 
 module.exports = function (app) {
 
   app.route('/api/threads/:board')
     .get(async function (req, res) {
       const board = req.params.board;
+      const { limit, orderBy, repliesCount } = req.body;
 
-      await Thread.find({ board }, data => res.json(data));
+      const filter = { board };
+      let data;
+
+      if (limit && orderBy && repliesCount) {
+        
+        data = await Thread.find(filter).limit(limit).exec();
+        //:'recentFirst'
+      } else {
+        data = await Thread.find(filter).exec();
+      }
+      res.json(data);
     });
  
   app.route('/api/threads/:board')
     .post(async function (req, res) {
-      const { text, delete_password } = req.body;
       const board = req.params.board;
+      const { text, delete_password } = req.body;
 
       const document = new Thread({ board, text, delete_password });
       await document.save().then(data => res.json(data));
-
     });
-
-  // app.route('/api/replies/:board');
-
 };
