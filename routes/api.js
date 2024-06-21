@@ -12,6 +12,7 @@ module.exports = function (app) {
   app.get(THREAD_PATH, thread.get);
   app.post(THREAD_PATH, thread.post);
   app.put(THREAD_PATH, thread.put);
+  app.delete(THREAD_PATH, thread.delete);
 
 
 };
