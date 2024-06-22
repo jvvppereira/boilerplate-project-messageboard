@@ -27,23 +27,22 @@ module.exports = {
     async post(req, res) { //done
         const board = req.params.board;
         const { text, delete_password } = req.body;
+        const created_on = new Date();
+        const bumped_on = new Date();
+        const reported = false;
 
-        const document = new Thread({ board, text, delete_password });
-        await document.save().then(data => res.json(data));
+        const document = new Thread({ board, text, delete_password, created_on, bumped_on, reported });
+        await document.save().then(data => res.json({...data.toJSON(), replies: []}));
     },
 
-    async put(req, res) { //TODO TEST
+    async put(req, res) { 
         const board = req.params.board;
         const { thread_id: id, text, content, delete_password } = req.body;
-        
-        // let id = req.params.id;
-        // if (!id) {
-        //     const thread = await getByBoard(board);
-        //     id = thread._id;
-        // }
+        const reported = true;
 
-        const data = await Thread.findByIdAndUpdate(id, { board, text, content, delete_password });
-        res.json(data);
+        await Thread.findByIdAndUpdate(id, { board, text, content, delete_password, reported });
+        
+        res.text('reported');
     },
 
     async delete(req, res) { //done
@@ -52,10 +51,10 @@ module.exports = {
         const threadFromDatabase = await getThread({_id:id});
 
         if (threadFromDatabase[0].delete_password == delete_password) {
-            const data = await Thread.findByIdAndDelete(id);
-            res.json(data);
+            await Thread.findByIdAndDelete(id);
+            res.text('success');
         } else {
-            res.json({});
+            res.text('incorrect password');
         }
     }
 }

@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const replySchema = new Schema({
     board: { type: String, required: true }, 
     thread_id: Schema.Types.ObjectId, 
+    created_on: Date,
     text: String,
     delete_password: String
   });

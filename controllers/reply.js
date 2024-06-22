@@ -1,4 +1,5 @@
 const Reply = require("../models/reply.js");
+const Thread = require("../models/thread.js");
 
 const getReply = async (filterParams) => { //done
     let reply = await Reply.find(filterParams).exec();
@@ -17,38 +18,37 @@ module.exports = {
         res.json(data);
     },
 
-    async post(req, res) { //done
+    async post(req, res) { 
         const board = req.params.board;
         const { thread_id, text, delete_password } = req.body;
+        const created_on = new Date();
+        const reported = false;
 
-        const document = new Reply({ board, thread_id, text, delete_password });
+        const document = new Reply({ board, thread_id, text, delete_password, created_on, reported });
+        await Thread.findByIdAndUpdate(thread_id, { bumped_on: created_on });
         await document.save().then(data => res.json(data));
     },
 
-    async put(req, res) { //TODO TEST
+    async put(req, res) { 
         const board = req.params.board;
         const { reply_id: id, thread_id, text, content, delete_password } = req.body;
-        
-        // let id = req.params.id;
-        // if (!id) {
-        //     const thread = await getByBoard(board);
-        //     id = thread._id;
-        // }
+        const reported = true;
 
-        const data = await Reply.findByIdAndUpdate(id, { board, thread_id, text, content, delete_password });
-        res.json(data);
+        await Reply.findByIdAndUpdate(id, { board, thread_id, text, content, delete_password, reported });        
+        
+        res.text('reported');
     },
 
     async delete(req, res) { //done
         const { reply_id: id, delete_password } = req.body;
         
-        const threadFromDatabase = await getReply({_id:id});
+        const replyFromDatabase = await getReply({_id:id});
 
-        if (threadFromDatabase[0].delete_password == delete_password) {
-            const data = await Reply.findByIdAndDelete(id);
-            res.json(data);
+        if (replyFromDatabase[0].delete_password == delete_password) {
+            await Reply.findByIdAndDelete(id);
+            res.text('success');
         } else {
-            res.json({});
+            res.text('incorrec password');
         }
     }
 }

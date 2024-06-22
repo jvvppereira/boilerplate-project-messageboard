@@ -3,7 +3,10 @@ const { Schema } = mongoose;
 
 const threadSchema = new Schema({
     board: { type: String, required: true }, 
+    created_on: Date,
+    bumped_on: Date,
     text: String,
+    reported: Boolean,
     delete_password: String
   });
   
