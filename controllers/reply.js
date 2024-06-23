@@ -36,7 +36,7 @@ module.exports = {
 
         await Reply.findByIdAndUpdate(id, { board, thread_id, text, content, delete_password, reported });        
         
-        res.text('reported');
+        res.send('reported');
     },
 
     async delete(req, res) { //done
@@ -46,9 +46,9 @@ module.exports = {
 
         if (replyFromDatabase[0].delete_password == delete_password) {
             await Reply.findByIdAndDelete(id);
-            res.text('success');
+            res.send('success');
         } else {
-            res.text('incorrec password');
+            res.send('incorrect password');
         }
     }
 }

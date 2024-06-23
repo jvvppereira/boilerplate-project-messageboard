@@ -1,4 +1,5 @@
 const Thread = require("../models/thread.js");
+const Reply = require("../models/reply.js");
 
 const getThread = async (filterParams) => {
     let thread = await Thread.find(filterParams).exec();
@@ -20,8 +21,16 @@ module.exports = {
             //:'recentFirst'
         } else {
             data = await getThread(filter);
-            data = data.map(val => val._doc);
-            //add  replies: []
+            data = data.map(val => val._doc).map(thread => {
+                delete thread.reported;
+                delete thread.delete_password;
+                return thread;
+            });
+            for (let i=0; i<data.length; i++) {
+                const thread = data[i];
+                const replies = await Reply.find({thread_id: thread._id}).exec();
+                thread.replies = replies;
+            }
         }
         res.json(data);
     },
@@ -44,7 +53,7 @@ module.exports = {
 
         await Thread.findByIdAndUpdate(id, { board, text, content, delete_password, reported });
 
-        res.text('reported');
+        res.send('reported');
     },
 
     async delete(req, res) { //done
@@ -54,9 +63,9 @@ module.exports = {
 
         if (threadFromDatabase[0].delete_password == delete_password) {
             await Thread.findByIdAndDelete(id);
-            res.text('success');
+            res.send('success');
         } else {
-            res.text('incorrect password');
+            res.send('incorrect password');
         }
     }
 }
