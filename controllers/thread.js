@@ -1,13 +1,13 @@
 const Thread = require("../models/thread.js");
 
-const getThread = async (filterParams) => { //done
+const getThread = async (filterParams) => {
     let thread = await Thread.find(filterParams).exec();
     return thread;
 }
 
 module.exports = {
 
-    async get(req, res) { //TODO
+    async get(req, res) { 
         const board = req.params.board;
         const { limit, orderBy, repliesCount } = req.body;
 
@@ -20,6 +20,8 @@ module.exports = {
             //:'recentFirst'
         } else {
             data = await getThread(filter);
+            data = data.map(val => val._doc);
+            //add  replies: []
         }
         res.json(data);
     },
@@ -41,7 +43,7 @@ module.exports = {
         const reported = true;
 
         await Thread.findByIdAndUpdate(id, { board, text, content, delete_password, reported });
-        
+
         res.text('reported');
     },
 
