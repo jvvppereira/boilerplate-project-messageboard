@@ -8,29 +8,20 @@ const getThread = async (filterParams) => {
 
 module.exports = {
 
-    async get(req, res) { 
+    async get(req, res) {
         const board = req.params.board;
-        const { limit, orderBy, repliesCount } = req.body;
-
-        const filter = { board };
-        let data;
-
-        if (limit && orderBy && repliesCount) {
-
-            data = await Thread.find(filter).limit(limit).exec();
-            //:'recentFirst'
-        } else {
-            data = await getThread(filter);
-            data = data.map(val => val._doc).map(thread => {
-                delete thread.reported;
-                delete thread.delete_password;
-                return thread;
-            });
-            for (let i=0; i<data.length; i++) {
-                const thread = data[i];
-                const replies = await Reply.find({thread_id: thread._id}).exec();
-                thread.replies = replies;
-            }
+        // const thread_id = req.params.thread_id;
+        // const { limit, orderBy, repliesCount } = req.body;
+        let data = await getThread({ board });
+        data = data.map(val => val._doc).map(thread => {
+            delete thread.reported;
+            delete thread.delete_password;
+            return thread;
+        });
+        for (let i = 0; i < data.length; i++) {
+            const thread = data[i];
+            const replies = await Reply.find({ thread_id: thread._id }).exec();
+            thread.replies = replies;
         }
         res.json(data);
     },
@@ -43,10 +34,10 @@ module.exports = {
         const reported = false;
 
         const document = new Thread({ board, text, delete_password, created_on, bumped_on, reported });
-        await document.save().then(data => res.json({...data.toJSON(), replies: []}));
+        await document.save().then(data => res.json({ ...data.toJSON(), replies: [] }));
     },
 
-    async put(req, res) { 
+    async put(req, res) {
         const board = req.params.board;
         const { thread_id: id, text, content, delete_password } = req.body;
         const reported = true;
@@ -58,8 +49,8 @@ module.exports = {
 
     async delete(req, res) { //done
         const { thread_id: id, delete_password } = req.body;
-        
-        const threadFromDatabase = await getThread({_id:id});
+
+        const threadFromDatabase = await getThread({ _id: id });
 
         if (threadFromDatabase[0].delete_password == delete_password) {
             await Thread.findByIdAndDelete(id);
