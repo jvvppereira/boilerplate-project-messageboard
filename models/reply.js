@@ -6,6 +6,7 @@ const replySchema = new Schema({
     thread_id: Schema.Types.ObjectId, 
     created_on: Date,
     text: String,
+    reported: Boolean,
     delete_password: String
   });
   

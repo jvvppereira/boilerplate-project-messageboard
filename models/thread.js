@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const Reply = require('./reply');
 
 const threadSchema = new Schema({
     board: { type: String, required: true }, 
@@ -7,7 +8,8 @@ const threadSchema = new Schema({
     bumped_on: Date,
     text: String,
     reported: Boolean,
-    delete_password: String
+    delete_password: String,
+    replies: [Reply.schema]
   });
   
 let Thread = mongoose.model('Thread', threadSchema);

@@ -18,11 +18,11 @@ module.exports = {
             delete thread.delete_password;
             return thread;
         });
-        for (let i = 0; i < data.length; i++) {
-            const thread = data[i];
-            const replies = await Reply.find({ thread_id: thread._id }).exec();
-            thread.replies = replies;
-        }
+        // for (let i = 0; i < data.length; i++) {
+        //     const thread = data[i];
+        //     const replies = await Reply.find({ thread_id: thread._id }).exec();
+        //     thread.replies = replies;
+        // }
         res.json(data);
     },
 
@@ -34,12 +34,12 @@ module.exports = {
         const reported = false;
 
         const document = new Thread({ board, text, delete_password, created_on, bumped_on, reported });
-        await document.save().then(data => res.json({ ...data.toJSON(), replies: [] }));
+        await document.save().then(data => res.json(data.toJSON()));
     },
 
     async put(req, res) {
         const board = req.params.board;
-        const { thread_id: id, text, content, delete_password } = req.body;
+        const { report_id: id, text, content, delete_password } = req.body;
         const reported = true;
 
         await Thread.findByIdAndUpdate(id, { board, text, content, delete_password, reported });
