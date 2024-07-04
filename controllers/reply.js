@@ -36,7 +36,7 @@ module.exports = {
         thread.replies.push(document);
         thread.bumped_on = created_on;
 
-        await thread.save().then(data => res.json(data));
+        await thread.save().then(() => res.json(document));
     },
 
     async put(req, res) {
