@@ -1,13 +1,6 @@
 const Reply = require("../models/reply.js");
 const Thread = require("../models/thread.js");
 
-const getReply = async (filterParams) => {
-    const { reply_id, thread_id } = filterParams;
-    const thread = await Thread.find({ _id: thread_id }).exec();
-    const reply = thread[0].replies.find( reply => reply.id == reply_id);
-    return reply;
-}
-
 module.exports = {
 
     async get(req, res) {
@@ -47,26 +40,41 @@ module.exports = {
     },
 
     async put(req, res) {
-        const board = req.params.board;
-        const { reply_id: id, thread_id, text, content, delete_password } = req.body;
-        const reported = true;
+        const { reply_id: id, thread_id } = req.body;
 
-        //todo review
-        await Reply.findByIdAndUpdate(id, { board, thread_id, text, content, delete_password, reported });
+        const thread = await Thread.findById(thread_id);
+
+        for (let index = 0; index < thread.replies.length; index++) {
+            const currentReply = thread.replies[index];
+
+            if (currentReply.id == id) {
+                thread.replies[index].reported = true;
+            }
+        }
+        await thread.save();
 
         res.send('reported');
     },
 
-    async delete(req, res) { //done
+    async delete(req, res) { 
         const { reply_id, thread_id, delete_password } = req.body;
 
-        const replyFromDatabase = await getReply({ reply_id, thread_id });
+        const thread = await Thread.findById(thread_id);
 
-        if (replyFromDatabase.delete_password == delete_password) {
-            await Reply.findByIdAndUpdate(id, { text: "[deleted]" });
-            res.send('success');
-        } else {
-            res.send('incorrect password');
+        for (let index = 0; index < thread.replies.length; index++) {
+            const currentReply = thread.replies[index];
+
+            if (currentReply.id == reply_id) {
+                if (currentReply.delete_password == delete_password) {
+                    thread.replies[index].text = "[deleted]";
+
+                    await thread.save();
+                    res.send('success');
+                    break;
+                } else {
+                    res.send('incorrect password');
+                }
+            }
         }
     }
 }
