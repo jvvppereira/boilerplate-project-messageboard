@@ -15,10 +15,6 @@ module.exports = {
                 delete reply.delete_password;
                 return reply;
             })[0];
-
-            const reply = data;
-            const replies = await Reply.find({ thread_id: reply._id }).exec();
-            reply.replies = replies;
         }
 
         res.json(data);
