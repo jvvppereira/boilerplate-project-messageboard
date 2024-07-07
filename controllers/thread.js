@@ -9,13 +9,19 @@ module.exports = {
 
     async get(req, res) {
         const board = req.params.board;
-        let data = await getThread({ board });
-        data = data.map(val => val._doc).map(thread => {
+        let threads = await getThread({ board });
+        threads = threads.map(val => val._doc).map(thread => {
             delete thread.reported;
             delete thread.delete_password;
+            thread.replies = thread.replies.map(reply => {
+                const newReply = reply._doc;
+                delete newReply.reported;
+                delete newReply.delete_password;
+                return newReply;
+            })
             return thread;
-        });
-        res.json(data);
+        })
+        res.json(threads);
     },
 
     async post(req, res) { //done
