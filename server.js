@@ -15,6 +15,9 @@ const helmet = require("helmet");
 app.use(
   helmet({
     xDnsPrefetchControl: { allow: false },
+    referrerPolicy: {
+      policy: ["origin", "same-origin"],
+    },
   }),
 );
 

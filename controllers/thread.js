@@ -1,5 +1,4 @@
 const Thread = require("../models/thread.js");
-const Reply = require("../models/reply.js");
 
 const getThread = async (filterParams) => {
     let thread = await Thread.find(filterParams).exec();
@@ -10,19 +9,12 @@ module.exports = {
 
     async get(req, res) {
         const board = req.params.board;
-        // const thread_id = req.params.thread_id;
-        // const { limit, orderBy, repliesCount } = req.body;
         let data = await getThread({ board });
         data = data.map(val => val._doc).map(thread => {
             delete thread.reported;
             delete thread.delete_password;
             return thread;
         });
-        // for (let i = 0; i < data.length; i++) {
-        //     const thread = data[i];
-        //     const replies = await Reply.find({ thread_id: thread._id }).exec();
-        //     thread.replies = replies;
-        // }
         res.json(data);
     },
 
