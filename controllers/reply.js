@@ -7,17 +7,23 @@ module.exports = {
         const board = req.params.board;
         const thread_id = req.query.thread_id;
 
-        let data;
+        let thread;
         if (thread_id) {
-            data = await Thread.find({ _id: thread_id }).exec();
-            data = data.map(val => val._doc).map(reply => {
-                delete reply.reported;
-                delete reply.delete_password;
-                return reply;
+            thread = await Thread.find({ _id: thread_id }).exec();
+            thread = thread.map(val => val._doc).map(threadDoc => {
+                delete threadDoc.reported;
+                delete threadDoc.delete_password;
+                return threadDoc;
             })[0];
-        }
 
-        res.json(data);
+            thread.replies = thread.replies.map(reply => {
+                const newReply = reply._doc;
+                delete newReply.reported;
+                delete newReply.delete_password;
+                return newReply;
+            })
+        }
+        res.json(thread);
     },
 
     async post(req, res) {
