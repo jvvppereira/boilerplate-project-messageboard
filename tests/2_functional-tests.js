@@ -12,7 +12,6 @@ suite('Functional Tests', function() {
     Not working yet
     
     Failed:You can send a GET request to /api/threads/{board}. Returned will be an array of the most recent 10 bumped threads on the board with only the most recent 3 replies for each. The reported and delete_password fields will not be sent to the client.
-    Failed:You can send a GET request to /api/replies/{board}?thread_id={thread_id}. Returned will be the entire thread with all its replies, also excluding the same fields from the client as the previous test.
     Failed:All 10 functional tests are complete and passing.
     
     */
